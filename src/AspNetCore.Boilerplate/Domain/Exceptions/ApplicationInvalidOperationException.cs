@@ -4,5 +4,5 @@ namespace AspNetCore.Boilerplate.Domain;
 
 public class ApplicationInvalidOperationException(string message) : DomainException(message)
 {
-    public override HttpStatusCode StatusCode { get; } = HttpStatusCode.UnprocessableEntity;
+    public override HttpStatusCode StatusCode => HttpStatusCode.UnprocessableEntity;
 }

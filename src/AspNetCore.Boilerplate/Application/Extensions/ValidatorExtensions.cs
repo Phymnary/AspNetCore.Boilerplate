@@ -1,23 +1,16 @@
 using AspNetCore.Boilerplate.Domain;
+using AspNetCore.Boilerplate.Extensions;
 using FluentValidation;
 
 namespace AspNetCore.Boilerplate.Application.Extensions;
 
 public static class ValidatorExtensions
 {
-    public static IRuleBuilderOptions<TEntity, TProperty> WhenCreating<TEntity, TProperty>(
-        this IRuleBuilderOptions<TEntity, TProperty> rule
-    )
-        where TEntity : IEntity, IAuditable
+    public static async Task ValidateAndThrowOnErrors<T>(this IValidator<T> validator, T entity)
     {
-        return rule.When(entity => entity.CreatedAt == default);
-    }
+        var result = await validator.ValidateAsync(entity);
 
-    public static IRuleBuilderOptions<TEntity, TProperty> WhenUpdating<TEntity, TProperty>(
-        this IRuleBuilderOptions<TEntity, TProperty> rule
-    )
-        where TEntity : IEntity, IAuditable
-    {
-        return rule.When(entity => entity.CreatedAt != default);
+        if (!result.IsValid)
+            throw new EntityValidationException(result.Errors.JoinAsString(". "));
     }
 }

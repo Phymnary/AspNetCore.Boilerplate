@@ -33,7 +33,7 @@ public interface IRepository<TEntity, in TId> : IAsyncDisposable, IDisposable
     );
 
     Task<List<TEntity>> QueryAsync(
-        Expression<Func<TEntity, bool>> predicate,
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool isIncludeDetails = false,
         CancellationToken cancellationToken = default
     );

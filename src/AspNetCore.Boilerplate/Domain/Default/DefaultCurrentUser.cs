@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace AspNetCore.Boilerplate.Domain.Default;
@@ -8,12 +9,12 @@ public class DefaultCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
     {
         get
         {
-            var id = accessor.HttpContext?.User.FindFirst("sub");
+            var id = accessor.HttpContext?.User.FindFirstValue("sub");
 
-            if (id != null)
-                return new Guid(id.Value);
+            if (string.IsNullOrEmpty(id))
+                return null;
 
-            return null;
+            return new Guid(id);
         }
     }
 }

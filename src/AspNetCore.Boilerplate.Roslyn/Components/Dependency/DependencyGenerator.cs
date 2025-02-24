@@ -43,11 +43,14 @@ public partial class DependencyGenerator : IIncrementalGenerator
                 static (node, _) => node is ClassDeclarationSyntax,
                 static (ctx, token) =>
                 {
-                    var typeSymbol = (INamedTypeSymbol)ctx.TargetSymbol;
+                    _ = Execute.TryGetModuleHierarchy(
+                        (ClassDeclarationSyntax)ctx.TargetNode,
+                        (INamedTypeSymbol)ctx.TargetSymbol,
+                        token,
+                        out var info
+                    );
 
-                    return Execute.TryGetModuleErrors((ClassDeclarationSyntax)ctx.TargetNode, token)
-                        ? HierarchyInfo.From(typeSymbol)
-                        : null;
+                    return info;
                 }
             )
             .Where(module => module is not null)!;
@@ -55,7 +58,7 @@ public partial class DependencyGenerator : IIncrementalGenerator
         IncrementalValuesProvider<(
             HierarchyInfo Hierarchy,
             ImmutableArray<DependencyInfo> Info
-            )> grouped = moduleHierarchies.Combine(dependencyInfos.Collect());
+        )> grouped = moduleHierarchies.Combine(dependencyInfos.Collect());
 
         context.RegisterSourceOutput(
             grouped,
@@ -65,7 +68,8 @@ public partial class DependencyGenerator : IIncrementalGenerator
                     .Info.Select(Execute.GetRegistrationExpression)
                     .ToImmutableArray();
 
-                var compilationUnit = item.Hierarchy.GetCompilationUnitForDependency(
+                var compilationUnit = BuildSyntax.GetCompilationUnitForDependency(
+                    item.Hierarchy,
                     registerExpressions
                 );
 

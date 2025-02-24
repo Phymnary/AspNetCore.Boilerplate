@@ -24,6 +24,7 @@ public static class ModelBuilderExtensions
 
             additionalConfigure?.Invoke(b);
         });
+
         return modelBuilder;
     }
 

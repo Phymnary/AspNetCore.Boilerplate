@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using AspNetCore.Boilerplate.Roslyn.Extensions;
+using AspNetCore.Boilerplate.Roslyn.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -56,12 +57,21 @@ public partial class DependencyGenerator
             return true;
         }
 
-        public static bool TryGetModuleErrors(
+        public static bool TryGetModuleHierarchy(
             ClassDeclarationSyntax nodeSyntax,
-            CancellationToken _
+            INamedTypeSymbol symbol,
+            CancellationToken _,
+            out HierarchyInfo? hierarchyInfo
         )
         {
-            return nodeSyntax.Modifiers.Any(SyntaxKind.PartialKeyword);
+            if (!nodeSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+            {
+                hierarchyInfo = null;
+                return false;
+            }
+
+            hierarchyInfo = HierarchyInfo.From(symbol);
+            return true;
         }
 
         public static ExpressionStatementSyntax GetRegistrationExpression(DependencyInfo info)

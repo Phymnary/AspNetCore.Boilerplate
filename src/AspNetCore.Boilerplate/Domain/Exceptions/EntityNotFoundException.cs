@@ -4,5 +4,5 @@ namespace AspNetCore.Boilerplate.Domain;
 
 public class EntityNotFoundException(string message) : DomainException(message)
 {
-    public override HttpStatusCode StatusCode { get; } = HttpStatusCode.NotFound;
+    public override HttpStatusCode StatusCode => HttpStatusCode.NotFound;
 }

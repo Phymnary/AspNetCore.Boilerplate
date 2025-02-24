@@ -6,27 +6,10 @@
         <Nullable>enable</Nullable>
         <RootNamespace>AspNetCore.Boilerplate</RootNamespace>
     </PropertyGroup>
-    
-    <PropertyGroup>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageLicenseUrl>https://licenses.nuget.org/MIT</PackageLicenseUrl>
-        <Version>1.0.0</Version>
-        <Authors>Bsweest</Authors>
-        <Product>Asp.Net Core Boilerplate</Product>
-        <Description>Asp.Net Core Boilerplate</Description>
-        <Title>AspNetCore.Boilerplate</Title>
-        <RepositoryUrl>https://github.com/Bsweest/AspNetCore.Boilerplate</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>asp.net;boilerplate;utilities</PackageTags>
-    </PropertyGroup>
-
-    <ItemGroup Condition="'$(Configuration)' == 'Release'">
-        <None Update="..\..\LICENSE" Pack="true" PackagePath="\" />
-        <None Update="..\..\README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentValidation" Version="11.11.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1"/>
@@ -35,6 +18,10 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AspNetCore.Boilerplate.Attributes\AspNetCore.Boilerplate.Attributes.csproj"/>
     </ItemGroup>
 
 </Project>

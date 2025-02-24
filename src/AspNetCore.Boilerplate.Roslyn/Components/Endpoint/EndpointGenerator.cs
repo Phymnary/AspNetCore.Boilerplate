@@ -93,7 +93,7 @@ public partial class EndpointGenerator : IIncrementalGenerator
             {
                 var ((endpoint, patterns), builders) = item;
 
-                ConfigRouteMethodInfo? closestPattern =
+                var closestPattern =
                     endpoint.RoutePatternPropertyName != string.Empty
                         ? null
                         : Execute.FindClosestPattern(endpoint, patterns);
@@ -111,7 +111,8 @@ public partial class EndpointGenerator : IIncrementalGenerator
                     Execute.FindClosestBuilder(endpoint, builders)
                 );
 
-                var compilationUnit = endpoint.Hierarchy.GetCompilationUnitForEndpoint(
+                var compilationUnit = BuildSyntax.GetCompilationUnitForEndpoint(
+                    endpoint.Hierarchy,
                     methodExpression,
                     buildRouteExpression
                 );
@@ -133,7 +134,8 @@ public partial class EndpointGenerator : IIncrementalGenerator
                     .Endpoints.Select(Execute.GetMapEndpointExpression)
                     .ToImmutableArray();
 
-                var compilationUnit = item.Controller.Hierarchy.GetCompilationUnitForController(
+                var compilationUnit = BuildSyntax.GetCompilationUnitForController(
+                    item.Controller.Hierarchy,
                     item.Controller.IsStatic,
                     expressions
                 );

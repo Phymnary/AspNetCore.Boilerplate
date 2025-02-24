@@ -24,8 +24,15 @@ public class EfRepository<TDbContext, TEntity, TId>(
     )
     {
         var inserted = _dbSet.Add(entity);
-        if (autoSave)
-            await context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            if (autoSave)
+                await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            throw new DbCommandException(e.Message);
+        }
 
         return inserted.Entity;
     }
@@ -53,11 +60,14 @@ public class EfRepository<TDbContext, TEntity, TId>(
     }
 
     public async Task<List<TEntity>> QueryAsync(
-        Expression<Func<TEntity, bool>> predicate,
+        Expression<Func<TEntity, bool>>? predicate = null,
         bool isIncludeDetails = false,
         CancellationToken cancellationToken = default
     )
     {
+        if (predicate == null)
+            return await Queryable(isIncludeDetails).ToListAsync(cancellationToken);
+
         return await Queryable(isIncludeDetails).Where(predicate).ToListAsync(cancellationToken);
     }
 

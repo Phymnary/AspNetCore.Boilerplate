@@ -1,6 +1,5 @@
 ﻿using AspNetCore.Boilerplate.Domain;
 using AspNetCore.Boilerplate.Domain.Default;
-using AspNetCore.Boilerplate.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +8,20 @@ namespace AspNetCore.Boilerplate.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection ConfigureSection<TConfig>(
+        this IServiceCollection services,
+        Action<TConfig>? setupWithConfig = null
+    )
+        where TConfig : class, IConfigSection
+    {
+        var configurations = services.GetConfiguration();
+        var configureSection = configurations.GetSection(TConfig.Section);
+        services.Configure<TConfig>(configureSection);
+        setupWithConfig?.Invoke(configureSection.Get<TConfig>()!);
+
+        return services;
+    }
+
     public static IServiceCollection AddBoilerplateServices(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();

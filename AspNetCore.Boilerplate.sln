@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Attr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Roslyn", "src\AspNetCore.Boilerplate.Roslyn\AspNetCore.Boilerplate.Roslyn.csproj", "{D37761E3-C20A-4139-B7FA-BB063DE1AA55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Test", "tests\AspNetCore.Boilerplate.Test\AspNetCore.Boilerplate.Test.csproj", "{28137407-3D57-4472-811D-319DAAEAD9F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Roslyn.Test", "tests\AspNetCore.Boilerplate.Roslyn.Test\AspNetCore.Boilerplate.Roslyn.Test.csproj", "{28137407-3D57-4472-811D-319DAAEAD9F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F23BEFE3-0539-4465-86F5-B424F8692F11}"
 EndProject

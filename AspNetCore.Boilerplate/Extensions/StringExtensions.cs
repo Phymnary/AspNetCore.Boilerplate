@@ -23,12 +23,12 @@ public static partial class StringExtensions
         return string.IsNullOrWhiteSpace(value);
     }
 
-    public static string RemovePostFix(this string str, string postFix)
+    public static string StripPostfix(this string str, string postFix)
     {
         return str.EndsWith(postFix) ? str[..^postFix.Length] : str;
     }
 
-    public static string RemoveSurFix(this string str, string value)
+    public static string StripPrefix(this string str, string value)
     {
         if (str.StartsWith(value))
             str = str.Remove(0, value.Length);

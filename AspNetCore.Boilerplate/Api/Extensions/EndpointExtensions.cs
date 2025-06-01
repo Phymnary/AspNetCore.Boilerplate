@@ -11,13 +11,13 @@ public static class EndpointExtensions
     )
         where TEndpoint : IEndpoint
     {
-        var ns = typeof(TEndpoint).Namespace!.RemoveSurFix(rootNamespace);
+        var ns = typeof(TEndpoint).Namespace!.StripPrefix(rootNamespace);
 
-        ns = ns.RemovePostFix(".POST")
-            .RemovePostFix(".GET")
-            .RemovePostFix(".DELETE")
-            .RemovePostFix(".PATCH")
-            .RemovePostFix(".PUT");
+        ns = ns.StripPostfix(".POST")
+            .StripPostfix(".GET")
+            .StripPostfix(".DELETE")
+            .StripPostfix(".PATCH")
+            .StripPostfix(".PUT");
 
         var routeName = string.Join(
             "/",

@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Rosl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Roslyn.Test", "AspNetCore.Boilerplate.Roslyn.Test\AspNetCore.Boilerplate.Roslyn.Test.csproj", "{79466715-4CC7-4723-BB00-0845DBF4CCEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.Boilerplate.Tests", "AspNetCore.Boilerplate.Tests\AspNetCore.Boilerplate.Tests.csproj", "{66391B86-6168-4391-B937-416789EF8262}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{79466715-4CC7-4723-BB00-0845DBF4CCEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79466715-4CC7-4723-BB00-0845DBF4CCEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79466715-4CC7-4723-BB00-0845DBF4CCEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66391B86-6168-4391-B937-416789EF8262}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66391B86-6168-4391-B937-416789EF8262}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66391B86-6168-4391-B937-416789EF8262}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66391B86-6168-4391-B937-416789EF8262}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

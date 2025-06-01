@@ -1,5 +1,7 @@
 ﻿using AspNetCore.Boilerplate.Api;
 using AspNetCore.Boilerplate.Domain;
+using AspNetCore.Boilerplate.EntityFrameworkCore.Interceptors;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +10,18 @@ namespace AspNetCore.Boilerplate.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddModule<TModule>(this IServiceCollection services)
+        where TModule : IModule, new()
+    {
+        var module = new TModule();
+        module.ConfigureServices(services);
+
+        if (module is IAutoRegister autoRegister)
+            autoRegister.AddDependencies(services);
+
+        return services;
+    }
+
     public static IServiceCollection ConfigureSection<TConfig>(
         this IServiceCollection services,
         Action<TConfig>? setupWithConfig = null
@@ -35,14 +49,20 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddModule<TModule>(this IServiceCollection services)
-        where TModule : IModule, new()
+    public static IServiceCollection AddEfCoreServices<TDbContext>(this IServiceCollection services)
+        where TDbContext : DbContext
     {
-        var module = new TModule();
-        module.ConfigureServices(services);
+        if (DomainFeatureFlags.IsAuditingEnable)
+            services.AddScoped<
+                IEfSaveChangesInterceptor,
+                AuditSaveChangesInterceptor<TDbContext>
+            >();
 
-        if (module is IAutoRegister autoRegister)
-            autoRegister.AddDependencies(services);
+        if (DomainFeatureFlags.IsMultiTenantEnable)
+            services.AddScoped<
+                IEfSaveChangesInterceptor,
+                MultiTenantSaveChangesInterceptor<TDbContext>
+            >();
 
         return services;
     }

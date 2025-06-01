@@ -1,4 +1,4 @@
-namespace AspNetCore.Boilerplate.EntityFrameworkCore;
+namespace AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
 
 public class PaginateResult<TEntity>
 {

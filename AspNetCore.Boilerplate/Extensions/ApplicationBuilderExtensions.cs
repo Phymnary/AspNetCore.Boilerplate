@@ -2,6 +2,7 @@ using System.Security.Claims;
 using AspNetCore.Boilerplate.Api;
 using AspNetCore.Boilerplate.Domain;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Boilerplate.Extensions;
@@ -21,7 +22,8 @@ public static class ApplicationBuilderExtensions
                     currentUser.Id = new Guid(subId);
 
                 if (
-                    context.User.FindFirstValue("tenant") is { } tenantId
+                    DomainFeatureFlags.IsMultiTenantEnable
+                    && context.User.FindFirstValue("tenant") is { } tenantId
                     && context.RequestServices.GetRequiredService<ICurrentTenant>()
                         is HttpContextCurrentTenant currentTenant
                 )

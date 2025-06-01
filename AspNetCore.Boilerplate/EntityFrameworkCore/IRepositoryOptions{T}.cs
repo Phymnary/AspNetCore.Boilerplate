@@ -8,10 +8,6 @@ public interface IRepositoryOptions<TEntity>
 {
     IValidator<TEntity>? Validator { get; }
 
-    ICurrentUser? CurrentUser { get; }
-
-    ICurrentTenant? CurrentTenant { get; }
-
     EntityQueryOptions<TEntity>? QueryOptions { get; }
 
     EntityUpdateOptions<TEntity>? UpdateOptions { get; }

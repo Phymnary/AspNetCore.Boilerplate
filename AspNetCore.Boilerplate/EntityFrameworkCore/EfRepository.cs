@@ -1,12 +1,14 @@
 using System.Linq.Expressions;
 using AspNetCore.Boilerplate.Application.Extensions;
 using AspNetCore.Boilerplate.Domain;
+using AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.Boilerplate.EntityFrameworkCore;
 
 public abstract class EfRepository<TDbContext, TEntity>(
     TDbContext context,
+    RepositoryDependencies? dependencies = null,
     IRepositoryOptions<TEntity>? options = null
 ) : IRepository<TEntity>
     where TEntity : class, IEntity
@@ -26,7 +28,10 @@ public abstract class EfRepository<TDbContext, TEntity>(
 
     private Task ValidateAsync(TEntity entity)
     {
-        return options?.Validator?.ValidateAndThrowOnErrorsAsync(entity) ?? Task.CompletedTask;
+        return options?.Validator?.ValidateAndThrowOnErrorsAsync(
+                entity,
+                $"Fail when validate {typeof(TEntity).Name}"
+            ) ?? Task.CompletedTask;
     }
 
     public async Task<TEntity> InsertAsync(
@@ -64,11 +69,6 @@ public abstract class EfRepository<TDbContext, TEntity>(
         return upsert;
     }
 
-    private static Guid? NullIfEmptyGuid(Guid? guid)
-    {
-        return guid == Guid.Empty ? null : guid;
-    }
-
     public async Task<int> UpdateAsync(
         TEntity entity,
         CancellationToken cancellationToken = default
@@ -80,41 +80,10 @@ public abstract class EfRepository<TDbContext, TEntity>(
 
     private async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        var now = DateTime.Now;
-        var currentUser = options?.CurrentUser;
-
-        foreach (var entry in context.ChangeTracker.Entries())
-            switch (entry.State)
+        if (dependencies?.SaveChangesInterceptors is not null)
+            foreach (var interceptor in dependencies.SaveChangesInterceptors)
             {
-                case EntityState.Added:
-                    if (entry.Entity is IAuditable insertAudit)
-                    {
-                        insertAudit.CreatedAt = now;
-                        insertAudit.CreatedById = NullIfEmptyGuid(currentUser?.Id);
-                    }
-
-                    if (
-                        options?.CurrentTenant is not null
-                        && entry.Entity is IMultiTenant multiTenant
-                    )
-                        multiTenant.TenantId =
-                            options.CurrentTenant.Id
-                            ?? throw new AppUnauthorizedException("You are not in any tenant");
-
-                    break;
-                case EntityState.Modified:
-                    if (entry.Entity is IAuditable updateAudit)
-                    {
-                        updateAudit.UpdatedAt = now;
-                        updateAudit.UpdatedById = NullIfEmptyGuid(currentUser?.Id);
-                    }
-
-                    break;
-                case EntityState.Detached:
-                case EntityState.Unchanged:
-                case EntityState.Deleted:
-                default:
-                    break;
+                await interceptor.RunAsync(cancellationToken);
             }
 
         return await context.SaveChangesAsync(cancellationToken);

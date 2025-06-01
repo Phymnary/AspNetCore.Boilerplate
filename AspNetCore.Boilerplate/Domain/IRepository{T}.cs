@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AspNetCore.Boilerplate.EntityFrameworkCore;
+using AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
 
 namespace AspNetCore.Boilerplate.Domain;
 
@@ -14,7 +15,7 @@ public interface IRepository<TEntity>
     /// <param name="entity">Entity to be inserted.</param>
     /// <param name="autoSave">Call SaveChanges or not.</param>
     /// <param name="stoppingToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">DbContext SaveChanges exceptions.</exception>
+    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">Database exceptions.</exception>
     /// <exception cref="EntityValidationException">Throw by validator.</exception>
     Task<TEntity> InsertAsync(
         TEntity entity,
@@ -29,7 +30,7 @@ public interface IRepository<TEntity>
     /// <param name="on">Expression to check if entity is existed or not</param>
     /// <param name="autoSave">Call SaveChanges or not.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">DbContext SaveChanges exceptions.</exception>
+    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">Database exceptions.</exception>
     /// <exception cref="EntityValidationException">Throw by validator.</exception>
     Task<TEntity> UpsertAsync(
         TEntity entity,
@@ -39,9 +40,9 @@ public interface IRepository<TEntity>
     );
 
     ///<summary>
-    /// Set data for <see cref="IAuditable"/> and <see cref="IMultiTenant"/> entities then save all tracking changes
+    /// Validate entity then run all <see cref="AspNetCore.Boilerplate.EntityFrameworkCore.Interceptors.IEfSaveChangesInterceptor"/> and SaveChanges
     /// </summary>
-    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">DbContext SaveChanges exceptions.</exception>
+    /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">Database exceptions.</exception>
     /// <exception cref="EntityValidationException">Throw by validator.</exception>
     Task<int> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
 

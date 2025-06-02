@@ -37,7 +37,7 @@ public class EntityUpdateOptions<TEntity>
         Run = Lambda<Action<TEntity, TEntity>>(body, from, to).Compile();
     }
 
-    public Action<TEntity, TEntity> Run { get; }
+    public Action<TEntity, TEntity> Run { get; init; }
 
     private static bool IsNotInit(MethodInfo setMethod)
     {

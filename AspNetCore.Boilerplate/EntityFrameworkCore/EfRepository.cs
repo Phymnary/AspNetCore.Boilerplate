@@ -1,14 +1,15 @@
 using System.Linq.Expressions;
 using AspNetCore.Boilerplate.Application.Extensions;
 using AspNetCore.Boilerplate.Domain;
-using AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
+using AspNetCore.Boilerplate.Domain.Pagination;
+using AspNetCore.Boilerplate.Domain.ReadonlyQueries;
 using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCore.Boilerplate.EntityFrameworkCore;
 
 public abstract class EfRepository<TDbContext, TEntity>(
     TDbContext context,
-    RepositoryDependencies? dependencies = null,
+    EfRepositoryAddons? addons = null,
     IRepositoryOptions<TEntity>? options = null
 ) : IRepository<TEntity>
     where TEntity : class, IEntity
@@ -53,10 +54,11 @@ public abstract class EfRepository<TDbContext, TEntity>(
         TEntity entity,
         Expression<Func<TEntity, bool>> on,
         bool autoSave = true,
+        bool isIncludeDetails = false,
         CancellationToken cancellationToken = default
     )
     {
-        var upsert = await Queryable().FirstOrDefaultAsync(on, cancellationToken);
+        var upsert = await Queryable(isIncludeDetails).FirstOrDefaultAsync(on, cancellationToken);
         if (upsert is not null)
             _updateOptions.Run(entity, upsert);
         else
@@ -80,8 +82,8 @@ public abstract class EfRepository<TDbContext, TEntity>(
 
     private async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        if (dependencies?.SaveChangesInterceptors is not null)
-            foreach (var interceptor in dependencies.SaveChangesInterceptors)
+        if (addons?.SaveChangesInterceptors is not null)
+            foreach (var interceptor in addons.SaveChangesInterceptors)
             {
                 await interceptor.RunAsync(cancellationToken);
             }
@@ -141,5 +143,10 @@ public abstract class EfRepository<TDbContext, TEntity>(
             queryable = _queryOptions.IncludeDetailsQuery.Invoke(queryable);
 
         return queryable;
+    }
+
+    public ReadonlyQuery<TEntity> ReadonlyQuery(Expression<Func<TEntity, bool>> predicate)
+    {
+        return new ReadonlyQuery<TEntity>(DbSet.Where(predicate).AsNoTracking());
     }
 }

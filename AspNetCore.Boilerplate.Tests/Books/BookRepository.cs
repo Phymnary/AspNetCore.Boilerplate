@@ -8,6 +8,6 @@ public interface IBookRepository : IRepository<Book>;
 [Dependency(Lifetime.Scoped)]
 public class BookRepository(
     BookStoreDbContext context,
-    RepositoryDependencies dependencies,
+    EfRepositoryAddons addons,
     IRepositoryOptions<Book> options
-) : EfRepository<BookStoreDbContext, Book>(context, dependencies, options), IBookRepository;
+) : EfRepository<BookStoreDbContext, Book>(context, addons, options), IBookRepository;

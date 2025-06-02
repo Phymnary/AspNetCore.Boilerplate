@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
-namespace AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
+namespace AspNetCore.Boilerplate.Domain.Pagination;
 
 internal class PaginateQueryBuilder<T>(Func<Task<int>> countFunc, IQueryable<T> queryable)
     : IPaginateOrderBuilding<T>,

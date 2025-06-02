@@ -18,7 +18,7 @@ public class EfRepositoryTests
         var dbContext = new BookStoreDbContext(options);
         var repository = new BookRepository(
             dbContext,
-            new RepositoryDependencies(
+            new EfRepositoryAddons(
                 [
                     new AuditSaveChangesInterceptor<BookStoreDbContext>(
                         dbContext,
@@ -36,5 +36,8 @@ public class EfRepositoryTests
 
         book.Name = "Harry Potter ch. 1";
         await repository.UpdateAsync(book);
+
+
+        var dto = await repository.ReadonlyQuery(entity => entity.Id == 1).ToListAsync();
     }
 }

@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
+using AspNetCore.Boilerplate.Domain.Pagination;
+using AspNetCore.Boilerplate.Domain.ReadonlyQueries;
 using AspNetCore.Boilerplate.EntityFrameworkCore;
-using AspNetCore.Boilerplate.EntityFrameworkCore.Pagination;
 
 namespace AspNetCore.Boilerplate.Domain;
 
@@ -29,6 +30,7 @@ public interface IRepository<TEntity>
     /// <param name="entity">Entity to be inserted or updated if existed.</param>
     /// <param name="on">Expression to check if entity is existed or not</param>
     /// <param name="autoSave">Call SaveChanges or not.</param>
+    /// <param name="isIncludeDetails">Call IncludeDetails.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">Database exceptions.</exception>
     /// <exception cref="EntityValidationException">Throw by validator.</exception>
@@ -36,6 +38,7 @@ public interface IRepository<TEntity>
         TEntity entity,
         Expression<Func<TEntity, bool>> on,
         bool autoSave = true,
+        bool isIncludeDetails = false,
         CancellationToken cancellationToken = default
     );
 
@@ -71,4 +74,6 @@ public interface IRepository<TEntity>
     IPaginateOrderBuilding<TEntity> Paginate(
         Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter = null
     );
+
+    ReadonlyQuery<TEntity> ReadonlyQuery(Expression<Func<TEntity, bool>> predicate);
 }

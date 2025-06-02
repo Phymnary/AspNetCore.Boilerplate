@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using AspNetCore.Boilerplate.Domain.Pagination;
 using AspNetCore.Boilerplate.Domain.ReadonlyQueries;
-using AspNetCore.Boilerplate.EntityFrameworkCore;
 
 namespace AspNetCore.Boilerplate.Domain;
 
@@ -15,13 +14,13 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <param name="entity">Entity to be inserted.</param>
     /// <param name="autoSave">Call SaveChanges or not.</param>
-    /// <param name="stoppingToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <exception cref="Microsoft.EntityFrameworkCore.DbUpdateException">Database exceptions.</exception>
     /// <exception cref="EntityValidationException">Throw by validator.</exception>
     Task<TEntity> InsertAsync(
         TEntity entity,
         bool autoSave = true,
-        CancellationToken stoppingToken = default
+        CancellationToken cancellationToken = default
     );
 
     /// <summary>
@@ -72,8 +71,12 @@ public interface IRepository<TEntity>
     );
 
     IPaginateOrderBuilding<TEntity> Paginate(
-        Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter = null
+        Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter = null,
+        CancellationToken cancellationToken = default
     );
 
-    ReadonlyQuery<TEntity> ReadonlyQuery(Expression<Func<TEntity, bool>> predicate);
+    ReadonlyQuery<TEntity> ReadonlyQuery(
+        Expression<Func<TEntity, bool>> predicate,
+        bool? isIncludeDetails = null
+    );
 }

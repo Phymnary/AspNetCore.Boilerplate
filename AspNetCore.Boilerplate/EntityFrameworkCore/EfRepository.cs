@@ -27,25 +27,32 @@ public abstract class EfRepository<TDbContext, TEntity>(
     private readonly EntityUpdateOptions<TEntity> _updateOptions =
         options?.UpdateOptions ?? (_fallbackUpdateOptions ??= new EntityUpdateOptions<TEntity>());
 
-    private Task ValidateAsync(TEntity entity)
+    private CancellationToken GetRequestAborted(CancellationToken token)
+    {
+        return token == default ? addons?.CancellationTokenProvider.Get() ?? default : token;
+    }
+
+    private Task ValidateAsync(TEntity entity, CancellationToken token)
     {
         return options?.Validator?.ValidateAndThrowOnErrorsAsync(
                 entity,
-                $"Fail when validate {typeof(TEntity).Name}"
+                $"Fail when validate {typeof(TEntity).Name}",
+                token
             ) ?? Task.CompletedTask;
     }
 
     public async Task<TEntity> InsertAsync(
         TEntity entity,
         bool autoSave = true,
-        CancellationToken stoppingToken = default
+        CancellationToken cancellationToken = default
     )
     {
+        var ct = GetRequestAborted(cancellationToken);
         var inserted = DbSet.Add(entity).Entity;
 
-        await ValidateAsync(inserted);
+        await ValidateAsync(inserted, ct);
         if (autoSave)
-            await SaveChangesAsync(stoppingToken);
+            await SaveChangesAsync(ct);
 
         return inserted;
     }
@@ -58,15 +65,16 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
-        var upsert = await Queryable(isIncludeDetails).FirstOrDefaultAsync(on, cancellationToken);
+        var ct = GetRequestAborted(cancellationToken);
+        var upsert = await Queryable(isIncludeDetails).FirstOrDefaultAsync(on, ct);
         if (upsert is not null)
             _updateOptions.Run(entity, upsert);
         else
-            upsert = await InsertAsync(entity, false, cancellationToken);
+            upsert = await InsertAsync(entity, false, ct);
 
-        await ValidateAsync(upsert);
+        await ValidateAsync(upsert, ct);
         if (autoSave)
-            await SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(ct);
 
         return upsert;
     }
@@ -76,17 +84,16 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
-        await ValidateAsync(entity);
-        return await SaveChangesAsync(cancellationToken);
+        var ct = GetRequestAborted(cancellationToken);
+        await ValidateAsync(entity, ct);
+        return await SaveChangesAsync(ct);
     }
 
     private async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         if (addons?.SaveChangesInterceptors is not null)
             foreach (var interceptor in addons.SaveChangesInterceptors)
-            {
                 await interceptor.RunAsync(cancellationToken);
-            }
 
         return await context.SaveChangesAsync(cancellationToken);
     }
@@ -97,7 +104,8 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
-        return await Queryable(isIncludeDetails).FirstOrDefaultAsync(predicate, cancellationToken);
+        var ct = GetRequestAborted(cancellationToken);
+        return await Queryable(isIncludeDetails).FirstOrDefaultAsync(predicate, ct);
     }
 
     public async Task<List<TEntity>> QueryAsync(
@@ -106,10 +114,11 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
+        var ct = GetRequestAborted(cancellationToken);
         if (predicate == null)
-            return await Queryable(isIncludeDetails).ToListAsync(cancellationToken);
+            return await Queryable(isIncludeDetails).ToListAsync(ct);
 
-        return await Queryable(isIncludeDetails).Where(predicate).ToListAsync(cancellationToken);
+        return await Queryable(isIncludeDetails).Where(predicate).ToListAsync(ct);
     }
 
     public async Task<bool> AnyAsync(
@@ -117,7 +126,8 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
-        return await DbSet.AnyAsync(predicate, cancellationToken);
+        var ct = GetRequestAborted(cancellationToken);
+        return await DbSet.AnyAsync(predicate, ct);
     }
 
     public async Task<int> CountAsync(
@@ -125,15 +135,18 @@ public abstract class EfRepository<TDbContext, TEntity>(
         CancellationToken cancellationToken = default
     )
     {
-        return await DbSet.CountAsync(predicate, cancellationToken);
+        var ct = GetRequestAborted(cancellationToken);
+        return await DbSet.CountAsync(predicate, ct);
     }
 
     public IPaginateOrderBuilding<TEntity> Paginate(
-        Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter = null
+        Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter = null,
+        CancellationToken cancellationToken = default
     )
     {
+        var ct = GetRequestAborted(cancellationToken);
         var queryable = filter is not null ? filter(DbSet) : DbSet;
-        return new PaginateQueryBuilder<TEntity>(() => queryable.CountAsync(), queryable);
+        return new PaginateQueryBuilder<TEntity>(() => queryable.CountAsync(ct), queryable);
     }
 
     public IQueryable<TEntity> Queryable(bool isIncludeDetails = false)
@@ -145,8 +158,15 @@ public abstract class EfRepository<TDbContext, TEntity>(
         return queryable;
     }
 
-    public ReadonlyQuery<TEntity> ReadonlyQuery(Expression<Func<TEntity, bool>> predicate)
+    public ReadonlyQuery<TEntity> ReadonlyQuery(
+        Expression<Func<TEntity, bool>> predicate,
+        bool? isIncludeDetails = null
+    )
     {
-        return new ReadonlyQuery<TEntity>(DbSet.Where(predicate).AsNoTracking());
+        var queryable = isIncludeDetails is { } useIncludeOptions
+            ? Queryable(useIncludeOptions)
+            : DbSet;
+
+        return new ReadonlyQuery<TEntity>(queryable.Where(predicate).AsNoTracking());
     }
 }

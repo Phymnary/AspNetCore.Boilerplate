@@ -22,13 +22,13 @@ public class ReadonlyQuery<T>
         return _queryable.AsAsyncEnumerable();
     }
 
-    public Task<List<T>> ToListAsync()
+    public Task<List<T>> ToListAsync(CancellationToken cancellationToken = default)
     {
-        return _queryable.ToListAsync();
+        return _queryable.ToListAsync(cancellationToken);
     }
-    
-    public Task<T[]> ToArrayAsync()
+
+    public Task<T[]> ToArrayAsync(CancellationToken cancellationToken = default)
     {
-        return _queryable.ToArrayAsync();
+        return _queryable.ToArrayAsync(cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AspNetCore.Boilerplate.Api;
 using AspNetCore.Boilerplate.Domain;
+using AspNetCore.Boilerplate.EntityFrameworkCore;
 using AspNetCore.Boilerplate.EntityFrameworkCore.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +46,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
         services.AddScoped<ICurrentTenant, HttpContextCurrentTenant>();
+        services.AddScoped<EfRepositoryAddons>();
+        services.AddScoped<ICancellationTokenProvider, HttpContextCancellationTokenProvider>();
+        services.AddProblemDetails().AddExceptionHandler<AspExceptionHandler>();
 
         return services;
     }

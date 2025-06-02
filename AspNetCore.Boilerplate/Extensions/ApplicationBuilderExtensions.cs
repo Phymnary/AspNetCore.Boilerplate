@@ -2,7 +2,6 @@ using System.Security.Claims;
 using AspNetCore.Boilerplate.Api;
 using AspNetCore.Boilerplate.Domain;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AspNetCore.Boilerplate.Extensions;
@@ -14,6 +13,12 @@ public static class ApplicationBuilderExtensions
         app.Use(
             (context, next) =>
             {
+                if (
+                    context.RequestServices.GetService<ICancellationTokenProvider>()
+                    is HttpContextCancellationTokenProvider provider
+                )
+                    provider.Set(context.RequestAborted);
+
                 if (
                     context.User.FindFirstValue("sub") is { } subId
                     && context.RequestServices.GetRequiredService<ICurrentUser>()
@@ -32,6 +37,8 @@ public static class ApplicationBuilderExtensions
                 return next(context);
             }
         );
+
+        app.UseExceptionHandler();
 
         return app;
     }

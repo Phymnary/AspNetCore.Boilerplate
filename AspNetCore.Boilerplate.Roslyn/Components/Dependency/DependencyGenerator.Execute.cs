@@ -79,24 +79,33 @@ public partial class DependencyGenerator
         {
             return ExpressionStatement(
                 InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("services"),
-                        GenericName(Identifier($"Add{info.Lifetime}"))
-                            .WithTypeArgumentList(
-                                TypeArgumentList(
-                                    SeparatedList<TypeSyntax>(
-                                        new SyntaxNodeOrToken[]
-                                        {
-                                            IdentifierName(info.ServiceTypeName),
-                                            Token(SyntaxKind.CommaToken),
-                                            IdentifierName(info.ImplementationTypeName),
-                                        }
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(
+                                "global::Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions"
+                            ),
+                            GenericName(Identifier($"Add{info.Lifetime}"))
+                                .WithTypeArgumentList(
+                                    TypeArgumentList(
+                                        SeparatedList<TypeSyntax>(
+                                            new SyntaxNodeOrToken[]
+                                            {
+                                                IdentifierName(info.ServiceTypeName),
+                                                Token(SyntaxKind.CommaToken),
+                                                IdentifierName(info.ImplementationTypeName),
+                                            }
+                                        )
                                     )
                                 )
-                            )
+                        )
                     )
-                )
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(IdentifierName("services"))
+                            )
+                        )
+                    )
             );
         }
     }

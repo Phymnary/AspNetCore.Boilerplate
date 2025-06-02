@@ -38,7 +38,7 @@ partial class DependencyGenerator
                         ParameterList(
                             SingletonSeparatedList(
                                 Parameter(Identifier("services"))
-                                    .WithType(IdentifierName("IServiceCollection"))
+                                    .WithType(IdentifierName("global::Microsoft.Extensions.DependencyInjection.IServiceCollection"))
                             )
                         )
                     )
@@ -57,12 +57,8 @@ partial class DependencyGenerator
                 Trivia(PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)),
                 Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))
             );
-            var unitSyntax = CompilationUnit()
-                .WithUsings(
-                    SingletonList(
-                        UsingDirective(IdentifierName("Microsoft.Extensions.DependencyInjection"))
-                    )
-                );
+            
+            var unitSyntax = CompilationUnit();
 
             if (hierarchyInfo.Namespace is "")
                 return unitSyntax
